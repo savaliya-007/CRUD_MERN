@@ -3,4 +3,14 @@
   overflow: hidden;
   margin-top: 10%; 
   min-width: 50vw;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 5px;
+  padding-bottom: 5%;
+}
+
+.signup {
+  height: max-content;
 }
