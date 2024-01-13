@@ -21,7 +21,7 @@ import axiosClient from "../../lib/axiosClient";
 
 export default function SignUp() {
   const formik = useFormik({
-    initialValues: { username: "", email: "", password: "", visibility: false , isAdmin: false},
+    initialValues: { username: "", email: "", password: "", visibility: false , role: false},
     validate: (value) => {
       const error: { username?: string; password?: string; email?: string } =
         {};
@@ -53,11 +53,13 @@ export default function SignUp() {
             username: value.username,
             password: value.password,
             email: value.email,
+            role: value.role ? "admin" : "user"
           },
           { headers: { "Content-Type": "application/json" } }
         )
         .then((response) => {
-          console.log("response", response);
+          console.log("response", response.data.token);
+          
           //dispatch
         });
     },
@@ -168,7 +170,7 @@ export default function SignUp() {
 
           <FormControlLabel
             value="end"
-            control={<Checkbox value={formik.values.isAdmin} />}
+            control={<Checkbox value={formik.values.role} onClick={()=>formik.setValues({...formik.values, role: !formik.values.role})}/>}
             label="sign up as Administrator"
             labelPlacement="end"
           />
