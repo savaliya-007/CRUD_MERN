@@ -15,13 +15,21 @@ import "./auth.css";
 import { useFormik } from "formik";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axiosClient from "../../lib/axiosClient";
-// import { useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setToken } from "../../Store/auth";
 
 // -----------------------------------------
 
 export default function SignUp() {
+  const dispatch = useDispatch();
   const formik = useFormik({
-    initialValues: { username: "", email: "", password: "", visibility: false , role: false},
+    initialValues: {
+      username: "",
+      email: "",
+      password: "",
+      visibility: false,
+      role: false,
+    },
     validate: (value) => {
       const error: { username?: string; password?: string; email?: string } =
         {};
@@ -45,7 +53,6 @@ export default function SignUp() {
       return error;
     },
     onSubmit: (value) => {
-      console.log("value==============================", value);
       axiosClient
         .post(
           "/api/v1/user/register",
@@ -53,14 +60,15 @@ export default function SignUp() {
             username: value.username,
             password: value.password,
             email: value.email,
-            role: value.role ? "admin" : "user"
+            role: value.role ? "admin" : "user",
           },
           { headers: { "Content-Type": "application/json" } }
         )
         .then((response) => {
-          console.log("response", response.data.token);
-          
-          //dispatch
+          dispatch(setToken(response.data.token));
+        })
+        .catch((error) => {
+          console.log("error", error);
         });
     },
   });
@@ -170,7 +178,17 @@ export default function SignUp() {
 
           <FormControlLabel
             value="end"
-            control={<Checkbox value={formik.values.role} onClick={()=>formik.setValues({...formik.values, role: !formik.values.role})}/>}
+            control={
+              <Checkbox
+                value={formik.values.role}
+                onClick={() =>
+                  formik.setValues({
+                    ...formik.values,
+                    role: !formik.values.role,
+                  })
+                }
+              />
+            }
             label="sign up as Administrator"
             labelPlacement="end"
           />

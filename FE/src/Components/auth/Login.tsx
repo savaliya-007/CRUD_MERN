@@ -13,12 +13,13 @@ import "./auth.css";
 import { useFormik } from "formik";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axiosClient from "../../lib/axiosClient";
-// import { useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setToken } from "../../Store/auth";
 
 // -----------------------------------------
 
 export default function Login() {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const formik = useFormik({
     initialValues: { username: "", password: "", visibility: false },
@@ -34,15 +35,19 @@ export default function Login() {
       return error;
     },
     onSubmit: (value) => {
-      console.log("value==============================", value);
-      axiosClient.post(
-        "/api/v1/user/login",
-        { username: value.username, password: value.password },
-        { headers: { "Content-Type": "application/json" } }
-      ).then(response => {
-        console.log('response', response)
-        //dispatch
-      });
+      axiosClient
+        .post(
+          "/api/v1/user/login",
+          { username: value.username, password: value.password },
+          { headers: { "Content-Type": "application/json" } }
+        )
+        .then((response) => {
+          console.log("response", response);
+          dispatch(setToken(response.data.token));
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
     },
   });
 
