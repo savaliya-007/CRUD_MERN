@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -6,17 +6,27 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../Store/store";
-
-const pages = ["dashboard", "Admin"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+import { setToken } from "../../Store/auth";
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+const pages = [
+  { path: "/", name: "dashboard" },
+  { name: "Admin", path: "/admin" },
+];
 
 const Layout: React.FC = () => {
   return (
@@ -30,29 +40,55 @@ const Layout: React.FC = () => {
 export default Layout;
 
 function ResponsiveAppBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
-  );
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
-  const token = useSelector((state: RootState) => state.auth);
-  console.log("token", token);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
+  const toggleDrawer = (open: boolean) => () => {
+    setDrawerOpen(open);
   };
+
+  const { token } = useSelector((state: RootState) => state.auth);
+
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+  const dispatch = useDispatch();
+  const naviagate = useNavigate();
+  const logout = () => {
+    localStorage.removeItem("auth");
+    window.location.reload();
+  };
+  const setttignd = [
+    {
+      name: "logout",
+      onclick: logout,
+    },
+    {
+      name: "Dashboard",
+      onclick: () => naviagate("/"),
+    },
+    {
+      name: "Admin",
+      onclick: () => naviagate("/admin"),
+    },
+  ];
+
+  React.useEffect(() => {
+    if (!token) {
+      const lt = localStorage.getItem("auth");
+      if (lt) {
+        dispatch(setToken(lt));
+      }
+    }
+  });
+
+  console.log("token", token);
 
   return (
     <AppBar position="sticky">
@@ -73,48 +109,10 @@ function ResponsiveAppBar() {
             CRUD MERN
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-
           <Typography
             variant="h5"
             noWrap
             component="a"
-            href="#app-bar-with-responsive-menu"
             sx={{
               mr: 2,
               display: { xs: "flex", md: "none" },
@@ -136,21 +134,68 @@ function ResponsiveAppBar() {
           >
             {pages.map((page) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
+                key={page.name}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-                {page}
+                <NavLink
+                  to={page.path}
+                  className={({ isActive }) =>
+                    `nav-list ${isActive ? "focust" : ""}`
+                  }
+                >
+                  {page.name}
+                </NavLink>
               </Button>
             ))}
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
+            {token ? (
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <>
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    marginLeft: "auto",
+                    display: { xs: "none", md: "flex" },
+                  }}
+                >
+                  {[
+                    { name: "login", path: "/auth/login" },
+                    { name: "register", path: "/auth/signin" },
+                  ].map((page) => (
+                    <Button
+                      key={page.name}
+                      sx={{ my: 2, color: "white", display: "block" }}
+                    >
+                      <NavLink
+                        className={({ isActive }) =>
+                          `nav-list ${isActive ? "focust" : ""}`
+                        }
+                        to={page.path}
+                      >
+                        {page.name}
+                      </NavLink>
+                    </Button>
+                  ))}
+                </Box>
+                <Box
+                  sx={{
+                    marginLeft: "auto",
+                    display: { xs: "flex", md: "none" },
+                  }}
+                >
+                  <IconButton onClick={toggleDrawer(true)} color="inherit">
+                    <MenuIcon />
+                  </IconButton>
+                </Box>
+              </>
+            )}
             <Menu
               sx={{ mt: "45px" }}
               id="menu-appbar"
@@ -167,12 +212,40 @@ function ResponsiveAppBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+              {setttignd.map((setting) => (
+                <MenuItem
+                  key={setting.name}
+                  onClick={() => {
+                    setting.onclick();
+                    handleCloseUserMenu();
+                  }}
+                >
+                  <Typography textAlign="center">{setting.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
+            <Drawer
+              anchor={"right"}
+              open={drawerOpen}
+              onClose={toggleDrawer(false)}
+            >
+              <Box
+                role="presentation"
+                onClick={toggleDrawer(false)}
+                onKeyDown={toggleDrawer(false)}
+              >
+                <List>
+                  {["Inbox", "Starred", "Send email", "Drafts"].map((text) => (
+                    <ListItem key={text} disablePadding>
+                      <ListItemButton>
+                        <ListItemIcon>hiii</ListItemIcon>
+                        <ListItemText primary={text} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            </Drawer>
           </Box>
         </Toolbar>
       </Container>

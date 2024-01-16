@@ -12,6 +12,8 @@ import router from "./route.tsx";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme } from "@mui/material";
 import { brown, grey } from "@mui/material/colors";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const theme = createTheme({
   palette: {
@@ -53,6 +55,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <ThemeProvider theme={theme}>
         <RouterProvider router={router} />
       </ThemeProvider>
+      <ToastContainer />
     </Provider>
   </React.StrictMode>
 );

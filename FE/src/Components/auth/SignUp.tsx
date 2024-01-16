@@ -17,6 +17,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axiosClient from "../../lib/axiosClient";
 import { useDispatch } from "react-redux";
 import { setToken } from "../../Store/auth";
+import { toast } from "react-toastify";
 
 // -----------------------------------------
 
@@ -64,10 +65,13 @@ export default function SignUp() {
           },
           { headers: { "Content-Type": "application/json" } }
         )
-        .then((response) => {
+        .then((response) => 
+        {
           dispatch(setToken(response.data.token));
+          toast.success("Signup successful!");
         })
         .catch((error) => {
+          toast.error(error.message);
           console.log("error", error);
         });
     },

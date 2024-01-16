@@ -6,3 +6,11 @@ body {
 * {
   min-width: 0;
 }
+.nav-list {
+  color: white;
+  text-decoration: none;
+}
+
+.focust {
+  text-decoration: underline;
+}
