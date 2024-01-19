@@ -1,33 +1,46 @@
+import React, { useEffect, useState } from "react";
+import axiosClient, { setAuthToken } from "../../lib/axiosClient";
+import { RootState } from "../../Store/store";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useFormik } from "formik";
+import { Edit, Visibility, VisibilityOff, Delete } from "@mui/icons-material";
 import {
-  Box,
-  Button,
-  Checkbox,
   Container,
+  Paper,
+  Box,
   FormControl,
-  FormControlLabel,
-  FormHelperText,
-  IconButton,
+  InputLabel,
   Input,
   InputAdornment,
-  InputLabel,
-  Paper,
+  IconButton,
+  Button,
+  Typography,
 } from "@mui/material";
-import "./auth.css";
-import { useFormik } from "formik";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import axiosClient from "../../lib/axiosClient";
-import { toast } from "react-toastify";
 
-// -----------------------------------------
+interface UserType {
+  _id: string;
+  username: string;
+  email: string;
+  role: string;
+  created_at: string;
+  updated_at: string;
+  __v: string;
+}
 
-export default function SignUp() {
+const Profile: React.FC = () => {
+  const [user, setUser] = useState<UserType>();
+  const { role, token } = useSelector((state: RootState) => state.auth);
+  console.log("role---------->", role, token);
+
+  console.log("user", user);
   const formik = useFormik({
     initialValues: {
-      username: "",
-      email: "",
+      username: user?.username || "",
+      email: user?.email || "",
       password: "",
       visibility: false,
-      role: false,
+      _id: null,
     },
     validate: (value) => {
       const error: { username?: string; password?: string; email?: string } =
@@ -53,19 +66,22 @@ export default function SignUp() {
     },
     onSubmit: (value) => {
       axiosClient
-        .patch(
-          "/api/v1/user/register",
+        .post(
+          role === "admin"
+            ? `/api/v1/admin/users/${value._id}`
+            : "/api/v1/user/auth-useraa",
           {
             username: value.username,
             password: value.password,
             email: value.email,
-            role: value.role ? "admin" : "user",
           },
           { headers: { "Content-Type": "application/json" } }
         )
         .then((response) => {
-          console.log("response", response);
-          toast.success("Update successful!");
+          console.log(response);
+          // dispatch(setToken({ token: response.data.token, role: value.role }));
+          // toast.success("Signup successful!");
+          // window.location.reload();
         })
         .catch((error) => {
           toast.error(error.message);
@@ -73,11 +89,32 @@ export default function SignUp() {
         });
     },
   });
-
+  useEffect(() => {
+    if (token && role) {
+      setAuthToken(token, role);
+      axiosClient
+        .get(
+          role === "admin"
+            ? "/api/v1/admin/auth-admin"
+            : "/api/v1/user/auth-user"
+        )
+        .then((response) => {
+          console.log(response);
+          setUser(response.data as UserType);
+          formik.setValues({
+            ...formik.values,
+            username: response.data?.username || "",
+            email: response.data?.email || "",
+            _id: response.data?._id || null,
+            visibility: false,
+          });
+        });
+    }
+  }, [token]);
   return (
     <Container maxWidth="lg">
       <Paper className="main-page signup">
-        <Box component={"h1"}> SIGN UP</Box>
+        <Box component={"h1"}> Update Profile</Box>
         <Box
           component={"form"}
           className="form-login"
@@ -113,9 +150,6 @@ export default function SignUp() {
               name="username"
               id="username"
             />
-            <FormHelperText variant="standard" error id="my-helper-text">
-              {formik.errors?.username}
-            </FormHelperText>
           </FormControl>
           <FormControl
             fullWidth
@@ -180,27 +214,24 @@ export default function SignUp() {
             />
           </FormControl>
 
-          <FormControlLabel
-            value="end"
-            control={
-              <Checkbox
-                value={formik.values.role}
-                onClick={() =>
-                  formik.setValues({
-                    ...formik.values,
-                    role: !formik.values.role,
-                  })
-                }
-              />
-            }
-            label="sign up as Administrator"
-            labelPlacement="end"
-          />
-          <Button fullWidth variant="outlined" type="submit">
-            Sign Up
+          <Button variant="outlined" startIcon={<Edit />} type="submit">
+            Update
+          </Button>
+          <Button
+            variant="outlined"
+            color="warning"
+            startIcon={<Delete />}
+            type="button"
+          >
+            Delete
           </Button>
         </Box>
+        <Typography fontSize={12} mt={2}>
+          only for admin right now
+        </Typography>
       </Paper>
     </Container>
   );
-}
+};
+
+export default Profile;

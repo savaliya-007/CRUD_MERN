@@ -53,10 +53,8 @@ export default function Login() {
         )
         .then((response) => {
           console.log("response", response);
-          dispatch(setToken(response.data.token));
+          dispatch(setToken({ token: response.data.token, role: value.role }));
           toast.success("login successful!");
-          // navigate("/");
-          window.location.href = "/";
         })
         .catch((error) => {
           toast.error(error.message);

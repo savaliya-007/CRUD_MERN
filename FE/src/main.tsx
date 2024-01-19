@@ -7,13 +7,12 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { store } from "./Store/store.ts";
 import { Provider } from "react-redux";
-import { RouterProvider } from "react-router-dom";
-import router from "./route.tsx";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme } from "@mui/material";
 import { brown, grey } from "@mui/material/colors";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import IndexRoutes from "./Routes/Index.tsx";
 
 const theme = createTheme({
   palette: {
@@ -53,7 +52,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <RouterProvider router={router} />
+        <IndexRoutes />
       </ThemeProvider>
       <ToastContainer />
     </Provider>

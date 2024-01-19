@@ -62,6 +62,7 @@ function ResponsiveAppBar() {
   const naviagate = useNavigate();
   const logout = () => {
     localStorage.removeItem("auth");
+    localStorage.removeItem("role");
     window.location.reload();
   };
   const setttignd = [
@@ -71,7 +72,7 @@ function ResponsiveAppBar() {
     },
     {
       name: "Dashboard",
-      onclick: () => naviagate("/"),
+      onclick: () => naviagate("/profile"),
     },
     {
       name: "Admin",
@@ -82,8 +83,9 @@ function ResponsiveAppBar() {
   React.useEffect(() => {
     if (!token) {
       const lt = localStorage.getItem("auth");
+      const role = localStorage.getItem("role");
       if (lt) {
-        dispatch(setToken(lt));
+        dispatch(setToken({ token: lt, role: role === "admin" }));
       }
     }
   });
