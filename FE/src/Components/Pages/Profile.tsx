@@ -66,7 +66,7 @@ const Profile: React.FC = () => {
     },
     onSubmit: (value) => {
       axiosClient
-        .post(
+        .patch(
           role === "admin"
             ? `/api/v1/admin/users/${value._id}`
             : "/api/v1/user/auth-useraa",
@@ -89,6 +89,7 @@ const Profile: React.FC = () => {
         });
     },
   });
+
   useEffect(() => {
     if (token && role) {
       setAuthToken(token, role);
@@ -111,6 +112,23 @@ const Profile: React.FC = () => {
         });
     }
   }, [token]);
+
+  const handleDelete = () => {
+    axiosClient
+      .delete (`/api/v1/admin/users/${formik.values._id}`)
+      .then((response) => {
+        console.log(response);
+        toast.success("Successfully Deleted!");
+        localStorage.removeItem("auth");
+        localStorage.removeItem("role");
+        window.location.reload();
+      })
+      .catch((error) => {
+        toast.error(error.message);
+        console.log("error", error);
+      });
+  };
+
   return (
     <Container maxWidth="lg">
       <Paper className="main-page signup">
@@ -139,7 +157,7 @@ const Profile: React.FC = () => {
               variant="standard"
               disableAnimation
               shrink
-              size="normal"
+              size="normal" 
               htmlFor="username"
             >
               username
@@ -222,6 +240,7 @@ const Profile: React.FC = () => {
             color="warning"
             startIcon={<Delete />}
             type="button"
+            onClick={handleDelete}
           >
             Delete
           </Button>

@@ -1,7 +1,7 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import Login from "../Components/auth/Login";
 import SignUp from "../Components/auth/SignUp";
-import Layout from "../Components/UI/Layout";
+import Layout from "../Components/UI/Layout/Layout";
 
 const authRouter = createBrowserRouter([
   {

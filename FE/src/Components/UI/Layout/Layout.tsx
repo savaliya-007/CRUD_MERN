@@ -12,15 +12,15 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../Store/store";
-import { setToken } from "../../Store/auth";
+import { RootState } from "../../../Store/store";
+import { setToken } from "../../../Store/auth";
 import {
+  Divider,
   Drawer,
   List,
   ListItem,
   ListItemButton,
-  ListItemIcon,
-  ListItemText,
+   ListItemText,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 const pages = [
@@ -233,14 +233,27 @@ function ResponsiveAppBar() {
             >
               <Box
                 role="presentation"
+                bgcolor={"#795548"}
+                height={"100%"}
+                color={"white"}
                 onClick={toggleDrawer(false)}
                 onKeyDown={toggleDrawer(false)}
               >
+                <Box
+                  component={"h3"}
+                  justifyContent={"center"}
+                  display={"flex"}
+                >
+                  CM
+                </Box>
+                <Divider />
                 <List>
-                  {["Inbox", "Starred", "Send email", "Drafts"].map((text) => (
+                  {(token
+                    ? ["Dashboard", "Profile"]
+                    : ["login", "register"]
+                  ).map((text) => (
                     <ListItem key={text} disablePadding>
                       <ListItemButton>
-                        <ListItemIcon>hiii</ListItemIcon>
                         <ListItemText primary={text} />
                       </ListItemButton>
                     </ListItem>

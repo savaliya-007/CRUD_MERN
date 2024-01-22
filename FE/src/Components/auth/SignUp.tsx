@@ -53,7 +53,7 @@ export default function SignUp() {
     },
     onSubmit: (value) => {
       axiosClient
-        .patch(
+        .post(
           "/api/v1/user/register",
           {
             username: value.username,
