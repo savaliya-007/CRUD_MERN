@@ -1,16 +1,24 @@
-import { config } from 'dotenv';
-import express, { Request, Response } from 'express';
-
+import { config } from "dotenv";
+import express from "express";
+import mongoose from "mongoose";
+import userRoutes from "./routes/UserRoutes";
 
 config();
-
 const app = express();
-const port = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Express + TypeScript Server related');
-});
+app.use(express.json());
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+// Connect to MongoDB
+try {
+  mongoose.connect("mongodb://127.0.0.1:27017/myapp_ts");
+} catch (error) {
+  console.error(error);
+}
+
+// Use user routes
+app.use("/api/v1/user", userRoutes);
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
